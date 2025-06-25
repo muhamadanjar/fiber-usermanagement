@@ -3,8 +3,8 @@ package persistence
 import (
 	"gorm.io/gorm"
 
-	"fiber-usermanagement/domain/entities"
-	"fiber-usermanagement/domain/repositories"
+	"fiber-usermanagement/internal/domain/entities"
+	"fiber-usermanagement/internal/domain/repositories"
 )
 
 // UserRepositoryImpl adalah implementasi konkret dari interface repositories.UserRepository.

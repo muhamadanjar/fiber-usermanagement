@@ -1,18 +1,17 @@
 package routes
 
 import (
-	"fiber-usermanagement/api/handlers"
-	"fiber-usermanagement/api/middlewares"
-	"fiber-usermanagement/usecase/interactors"
+	"fiber-usermanagement/internal/api/handlers"
+	"fiber-usermanagement/internal/api/middlewares"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 // SetupUserRoutes menginisialisasi rute-rute yang berkaitan dengan User.
 // Router Fiber dan UserInteractor disediakan untuk menghubungkan permintaan dengan logika bisnis.
-func SetupUserRoutes(router fiber.Router, userInteractor *interactors.UserInteractor) {
+func SetupUserRoutes(router fiber.Router) {
 	// Buat instance UserHandler, yang akan menggunakan UserInteractor
-	userHandler := handlers.NewUserHandler(userInteractor)
+	userHandler := handlers.NewUserHandler(routesConfig.UserInteractor)
 
 	// Buat grup rute khusus untuk resource 'users'
 	userRoutes := router.Group("/users")

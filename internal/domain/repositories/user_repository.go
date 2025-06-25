@@ -1,6 +1,6 @@
 package repositories
 
-import "fiber-usermanagement/domain/entities"
+import "fiber-usermanagement/internal/domain/entities"
 
 // UserRepository mendefinisikan kontrak (interface) untuk operasi persistensi data User.
 // Interface ini menjelaskan *apa* yang bisa dilakukan terhadap data User, tanpa

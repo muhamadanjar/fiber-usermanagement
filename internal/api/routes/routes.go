@@ -1,23 +1,31 @@
 package routes
 
 import (
-	"fiber-usermanagement/usecase/interactors"
+	"fiber-usermanagement/internal/usecase/interactors"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
+var routesConfig struct {
+	UserInteractor *interactors.UserInteractor
+	// Tambahkan interactor lain di sini jika ada
+}
+
+func InitRoutesModule(ui *interactors.UserInteractor) {
+	routesConfig.UserInteractor = ui
+}
+
 // SetupRoutes menginisialisasi semua rute API aplikasi.
 // Ini menerima instance Fiber app dan interactor yang diperlukan.
-func SetupRoutes(app *fiber.App, userInteractor *interactors.UserInteractor) {
+func SetupRoutes(app *fiber.App) {
 	// Middleware global Fiber
 	app.Use(logger.New()) // Aktifkan middleware logging untuk setiap permintaan
-
 	// Grouping API versi 1 untuk prefix '/api/v1'
 	v1 := app.Group("/api/v1")
 
 	// Setup rute-rute spesifik untuk entitas User
-	SetupUserRoutes(v1, userInteractor)
+	SetupUserRoutes(v1)
 
 	// Setup rute-rute spesifik untuk entitas Product
 

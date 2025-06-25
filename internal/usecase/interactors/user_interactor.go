@@ -3,8 +3,8 @@ package interactors
 import (
 	"errors"
 
-	"fiber-usermanagement/domain/entities"
-	"fiber-usermanagement/domain/repositories"
+	"fiber-usermanagement/internal/domain/entities"
+	"fiber-usermanagement/internal/domain/repositories"
 
 	"gorm.io/gorm"
 )
@@ -68,7 +68,7 @@ func (i *UserInteractor) UpdateUser(id uint, user *entities.User) (*entities.Use
 	}
 
 	// Perbarui hanya field yang diizinkan oleh logika bisnis
-	existingUser.Name = user.Name
+	existingUser.FirstName = user.FirstName
 	existingUser.Email = user.Email
 	// TODO: Handle password update secara terpisah dengan hashing dan validasi tambahan
 

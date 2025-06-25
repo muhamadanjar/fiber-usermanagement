@@ -4,8 +4,8 @@ import (
 	"log"
 	"strconv" // Untuk konversi string ke uint
 
-	"fiber-usermanagement/domain/entities"
-	"fiber-usermanagement/usecase/interactors"
+	"fiber-usermanagement/internal/domain/entities"
+	"fiber-usermanagement/internal/usecase/interactors"
 
 	"github.com/gofiber/fiber/v2"
 )
