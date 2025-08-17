@@ -1,36 +1,29 @@
 package routes
 
 import (
-	"fiber-usermanagement/internal/usecase/interactors"
+	"fiber-usermanagement/internal/api/handlers"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
-var routesConfig struct {
-	UserInteractor *interactors.UserInteractor
-	// Tambahkan interactor lain di sini jika ada
+type RouteConfig struct {
+	App         *fiber.App
+	UserHandler *handlers.UserHandler
 }
 
-func InitRoutesModule(ui *interactors.UserInteractor) {
-	routesConfig.UserInteractor = ui
+func (c *RouteConfig) Setup() {
+	c.SetupGuestRoute()
+	c.SetupAuthRoute()
 }
 
-// SetupRoutes menginisialisasi semua rute API aplikasi.
-// Ini menerima instance Fiber app dan interactor yang diperlukan.
-func SetupRoutes(app *fiber.App) {
-	// Middleware global Fiber
-	app.Use(logger.New()) // Aktifkan middleware logging untuk setiap permintaan
-	// Grouping API versi 1 untuk prefix '/api/v1'
-	v1 := app.Group("/api/v1")
+func (c *RouteConfig) SetupGuestRoute() {
+	c.App.Post("/", c.UserHandler.CreateUser)    // POST /api/v1/users untuk membuat pengguna baru
+	c.App.Get("/:id", c.UserHandler.GetUserByID) // GET /api/v1/users/:id untuk mendapatkan pengguna berdasarkan ID
+}
 
-	// Setup rute-rute spesifik untuk entitas User
-	SetupUserRoutes(v1)
+func (c *RouteConfig) SetupAuthRoute() {
+	c.App.Put("/:id", c.UserHandler.UpdateUser)    // PUT /api/v1/users/:id untuk memperbarui pengguna
+	c.App.Delete("/:id", c.UserHandler.DeleteUser) // DELETE /api/v1/users/:id untuk menghapus pengguna
+	c.App.Get("/", c.UserHandler.GetAllUsers)      // GET /api/v1/users untuk mendapatkan semua pengguna
 
-	// Setup rute-rute spesifik untuk entitas Product
-
-	// Rute default atau root endpoint
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Selamat datang di Go Fiber Clean Architecture!")
-	})
 }

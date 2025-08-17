@@ -1,6 +1,8 @@
 package container
 
 import (
+	"fiber-usermanagement/internal/api/handlers"
+	"fiber-usermanagement/internal/api/routes"
 	"fiber-usermanagement/internal/config"
 	"fiber-usermanagement/internal/domain/entities"
 	"fiber-usermanagement/internal/infrastructure/database"
@@ -8,18 +10,19 @@ import (
 	"fiber-usermanagement/internal/usecase/interactors"
 	"log"
 
+	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-// Container struct menyimpan semua dependensi yang diinisialisasi
 type Container struct {
-	DB             *gorm.DB
-	UserInteractor *interactors.UserInteractor
-	// Tambahkan interactor lain di sini jika ada
+	DB  *gorm.DB
+	App *fiber.App
+	Log *zap.Logger
 }
 
 // NewContainer menginisialisasi semua dependensi aplikasi
-func NewContainer(cfg *config.Config) (*Container, error) {
+func NewContainer(cfg *config.Config, app *fiber.App, logContainer *zap.Logger) (*Container, error) {
 	// Inisialisasi koneksi database
 	db, err := database.NewPostgresDB(cfg.Database.DatabaseURL)
 	if err != nil {
@@ -38,8 +41,17 @@ func NewContainer(cfg *config.Config) (*Container, error) {
 	database.Migrate(db, &entities.User{}, &entities.Role{}, &entities.Permission{})
 	log.Println("Migrasi database berhasil.")
 
+	userHandler := handlers.NewUserHandler(userInteractor)
+
+	routeConfig := routes.RouteConfig{
+		App:         app,
+		UserHandler: userHandler,
+	}
+	routeConfig.Setup()
+
 	return &Container{
-		DB:             db,
-		UserInteractor: userInteractor,
+		DB:  db,
+		App: app,
+		Log: logContainer,
 	}, nil
 }
