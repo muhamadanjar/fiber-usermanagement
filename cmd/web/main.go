@@ -4,6 +4,7 @@ import (
 	"fiber-usermanagement/internal/config"
 	"fiber-usermanagement/internal/container"
 	"fmt"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -11,18 +12,19 @@ import (
 
 func main() {
 	// Initialize logger
-	log, err := config.NewZapLogger()
+
+	cfg, err := config.NewConfig()
 	if err != nil {
-		fmt.Printf("Failed to initialize logger: %v\n", err)
+		panic(err)
 	}
 
-	viperConfig := config.NewViper()
-	cfg, err := config.LoadConfig()
+	logger, err := config.NewZapLogger(cfg)
 	if err != nil {
-		log.Fatal("Gagal Mengambil Config")
+		panic(err)
 	}
+	defer logger.Sync()
 
-	_, err = config.NewRabbitMQ(viperConfig)
+	_, err = config.NewRabbitMQ(cfg)
 	if err != nil {
 		log.Fatal("Failed to initialize RabbitMQ", zap.Error(err))
 	}
@@ -31,14 +33,14 @@ func main() {
 	app := fiber.New()
 
 	// Convert zap.Logger to log.Logger
-	_, err = container.NewContainer(cfg, app, log)
+	_, err = container.NewContainer(cfg, app, logger)
 	if err != nil {
-		log.Fatal("Gagal menginisialisasi container aplikasi: %v", zap.Error(err))
+		log.Fatalf("Gagal menginisialisasi container aplikasi: %v", zap.Error(err))
 	}
 
 	// Mulai server Fiber
 	err = app.Listen(fmt.Sprintf(":%s", cfg.Port))
 	if err != nil {
-		log.Fatal("Gagal menginisialisasi server: %v", zap.Error(err))
+		log.Fatalf("Gagal menginisialisasi server: %v", zap.Error(err))
 	}
 }

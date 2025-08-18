@@ -4,7 +4,6 @@ import (
 	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/spf13/viper"
 )
 
 type Client struct {
@@ -12,8 +11,8 @@ type Client struct {
 	channel *amqp.Channel
 }
 
-func NewRabbitMQ(viper *viper.Viper) (*Client, error) {
-	conn, err := amqp.Dial(viper.GetString("rabbitmq.url"))
+func NewRabbitMQ(cfg *Config) (*Client, error) {
+	conn, err := amqp.Dial(*cfg.RabbitMQ.URL)
 	if err != nil {
 		return nil, err
 	}

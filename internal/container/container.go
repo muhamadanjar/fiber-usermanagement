@@ -24,7 +24,7 @@ type Container struct {
 // NewContainer menginisialisasi semua dependensi aplikasi
 func NewContainer(cfg *config.Config, app *fiber.App, logContainer *zap.Logger) (*Container, error) {
 	// Inisialisasi koneksi database
-	db, err := database.NewPostgresDB(cfg.Database.DatabaseURL)
+	db, err := database.NewPostgresDB(cfg.GetDatabaseURL())
 	if err != nil {
 		return nil, err
 	}

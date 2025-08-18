@@ -1,28 +1,29 @@
 {
-  "app": {
-    "name": "usermanagement"
-  },
-  "web": {
-    "prefork": false,
-    "port": 3000
-  },
-  "log": {
-    "level": 6
-  },
+  "app_env": "development",
+  "port": "8080",
   "database": {
-    "username": "root",
-    "password": "",
     "host": "localhost",
-    "port": 5432,
-    "name": "fiber_usermanagement",
-    "pool": {
-      "idle": 10,
-      "max": 100,
-      "lifetime": 300
-    }
+    "port": "5432",
+    "user": "postgres",
+    "dbname": "myapp_dev",
+    "sslmode": "disable",
+    "timezone": "UTC",
+    "max_connections": 25,
+    "timeout": "30s"
   },
-  "rabbitmq": {
-    "url": "amqp://guest:guest@localhost:5672/"
+  "storage": {
+    "upload_dir": "./uploads",
+    "processed_dir": "./processed",
+    "export_dir": "./exports",
+    "max_upload_size": 10485760,
+    "allowed_extensions": [".jpg", ".png", ".pdf", ".csv"]
+  },
+  "rate_limit": {
+    "requests_per_minute": 60,
+    "burst": 10
+  },
+  "pagination": {
+    "default_page_size": 20,
+    "max_page_size": 100
   }
-  
 }
