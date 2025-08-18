@@ -1,3 +1,5 @@
 build
 .env
 config.json
+logs/*.log
+node_modules/

@@ -1,46 +1,64 @@
 package main
 
 import (
+	"context"
 	"fiber-usermanagement/internal/config"
 	"fiber-usermanagement/internal/container"
-	"fmt"
-	"log"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
 )
 
 func main() {
 	// Initialize logger
-
-	cfg, err := config.NewConfig()
+	appContainer, err := config.NewAppContainer()
 	if err != nil {
-		panic(err)
+		panic("Failed to initialize application: " + err.Error())
 	}
 
-	logger, err := config.NewZapLogger(cfg)
-	if err != nil {
-		panic(err)
-	}
-	defer logger.Sync()
+	// Ensure cleanup on exit
+	defer func() {
+		if err := appContainer.Close(); err != nil {
+			appContainer.Logger.Error("Error during application shutdown", zap.Error(err))
+		}
+	}()
 
-	_, err = config.NewRabbitMQ(cfg)
+	businessContainer, err := container.NewContainer(appContainer)
 	if err != nil {
-		log.Fatal("Failed to initialize RabbitMQ", zap.Error(err))
-	}
-
-	// Inisialisasi Fiber app
-	app := fiber.New()
-
-	// Convert zap.Logger to log.Logger
-	_, err = container.NewContainer(cfg, app, logger)
-	if err != nil {
-		log.Fatalf("Gagal menginisialisasi container aplikasi: %v", zap.Error(err))
+		appContainer.Logger.Fatal("Failed to initialize business container", zap.Error(err))
 	}
 
-	// Mulai server Fiber
-	err = app.Listen(fmt.Sprintf(":%s", cfg.Port))
-	if err != nil {
-		log.Fatalf("Gagal menginisialisasi server: %v", zap.Error(err))
+	// Setup routes
+	businessContainer.SetupRoutes()
+
+	// Start server in a goroutine
+	serverAddr := appContainer.GetServerAddress()
+	go func() {
+		appContainer.Logger.Info("Starting server", zap.String("address", serverAddr))
+		if err := appContainer.App.Listen(serverAddr); err != nil {
+			appContainer.Logger.Fatal("Failed to start server", zap.Error(err))
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	// Block until we receive our signal
+	<-c
+	appContainer.Logger.Info("Shutting down server...")
+
+	// Create a deadline to wait for
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// Attempt graceful shutdown
+	if err := appContainer.App.ShutdownWithContext(ctx); err != nil {
+		appContainer.Logger.Error("Server forced to shutdown", zap.Error(err))
 	}
+
+	appContainer.Logger.Info("Server exited")
 }

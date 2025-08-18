@@ -19,6 +19,7 @@ type Config struct {
 	Email    EmailConfig    `mapstructure:"email"`
 	RabbitMQ RabbitMQConfig `mapstructure:"rabbitmq"`
 	Log      LogConfig      `mapstructure:"log"` // Add LogConfig here
+	Redis    RedisConfig    `mapstructure:"redis"`
 }
 
 // DatabaseConfig represents database configuration
@@ -58,6 +59,13 @@ type EmailConfig struct {
 
 type RabbitMQConfig struct {
 	URL *string `mapstructure:"url"`
+}
+
+type RedisConfig struct {
+	Host     *string `json:"host" mapstructure:"host"`
+	Port     *int    `json:"port" mapstructure:"port"`
+	Password *string `json:"password" mapstructure:"password"`
+	DB       *int    `json:"db" mapstructure:"db"`
 }
 
 // ConfigManager handles configuration loading and management
@@ -148,6 +156,12 @@ func (cm *ConfigManager) setDefaults() {
 	cm.viper.SetDefault("email.sender_name", "MyApp")
 	cm.viper.SetDefault("email.auth_email", "")
 	cm.viper.SetDefault("email.auth_password", "")
+
+	// Redis defaults
+	cm.viper.SetDefault("redis.host", "localhost")
+	cm.viper.SetDefault("redis.port", 6379)
+	cm.viper.SetDefault("redis.password", "")
+	cm.viper.SetDefault("redis.db", 0)
 }
 
 // loadConfig loads configuration from various sources and unmarshals to struct
