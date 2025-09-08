@@ -6,6 +6,7 @@ import (
 	"fiber-usermanagement/internal/domain/entities"
 	"fiber-usermanagement/internal/domain/repositories"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +31,11 @@ func (i *UserInteractor) CreateUser(user *entities.User) (*entities.User, error)
 	}
 	// TODO: Dalam aplikasi nyata, Anda harus melakukan hashing password di sini
 	// Contoh: user.Password, _ = bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, errors.New("gagal melakukan hashing password")
+	}
+	user.Password = string(hashedPassword)
 	// Panggil repository untuk menyimpan data
 	return i.userRepo.Create(user)
 }

@@ -136,7 +136,7 @@ func (cm *ConfigManager) setDefaults() {
 	cm.viper.SetDefault("database.port", "5432")
 	cm.viper.SetDefault("database.user", "postgres")
 	cm.viper.SetDefault("database.password", "")
-	cm.viper.SetDefault("database.dbname", "myapp")
+	cm.viper.SetDefault("database.dbname", "fiber_usermanagement")
 	cm.viper.SetDefault("database.sslmode", "disable")
 	cm.viper.SetDefault("database.timezone", "UTC")
 

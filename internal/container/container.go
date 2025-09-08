@@ -87,6 +87,8 @@ func (c *BusinessContainer) runMigrations() error {
 		&entities.User{},
 		&entities.Role{},
 		&entities.Permission{},
+		&entities.Menu{},
+		&entities.AccessControl{},
 	}
 
 	for _, entity := range entities {
