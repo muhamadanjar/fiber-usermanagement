@@ -6,6 +6,7 @@ import (
 	"fiber-usermanagement/internal/domain/entities"
 	"fiber-usermanagement/internal/domain/repositories"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -25,16 +26,16 @@ func NewAccessControlInteractor(acr repositories.AccessControlRepository) *Acces
 // Ini menangani validasi input dasar dan memanggil repository untuk persistensi.
 func (i *AccessControlInteractor) CreateAccessControl(ac *entities.AccessControl) (*entities.AccessControl, error) {
 	// Validasi: field required tidak boleh kosong
-	if ac.RoleID == 0 {
+	if ac.RoleID == uuid.Nil {
 		return nil, errors.New("role ID tidak boleh kosong")
 	}
-	if ac.PermissionID == 0 {
+	if ac.PermissionID == uuid.Nil {
 		return nil, errors.New("permission ID tidak boleh kosong")
 	}
 	if ac.ResourceType == "" {
 		return nil, errors.New("resource type tidak boleh kosong")
 	}
-	if ac.ResourceID == 0 {
+	if ac.ResourceID == uuid.Nil {
 		return nil, errors.New("resource ID tidak boleh kosong")
 	}
 
@@ -49,7 +50,7 @@ func (i *AccessControlInteractor) CreateAccessControl(ac *entities.AccessControl
 }
 
 // GetAccessControlByID adalah use case untuk mendapatkan access control berdasarkan ID.
-func (i *AccessControlInteractor) GetAccessControlByID(id uint) (*entities.AccessControl, error) {
+func (i *AccessControlInteractor) GetAccessControlByID(id uuid.UUID) (*entities.AccessControl, error) {
 	// Panggil repository untuk mengambil data
 	ac, err := i.acRepo.FindByID(id)
 	if err != nil {
@@ -68,7 +69,7 @@ func (i *AccessControlInteractor) GetAllAccessControls() ([]entities.AccessContr
 }
 
 // DeleteAccessControl adalah use case untuk menghapus access control.
-func (i *AccessControlInteractor) DeleteAccessControl(id uint) error {
+func (i *AccessControlInteractor) DeleteAccessControl(id uuid.UUID) error {
 	// Cek apakah access control ada
 	_, err := i.acRepo.FindByID(id)
 	if err != nil {

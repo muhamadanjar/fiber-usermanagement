@@ -4,6 +4,7 @@ import (
 	"fiber-usermanagement/internal/domain/entities"
 	"fiber-usermanagement/internal/domain/repositories"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -28,15 +29,15 @@ func (r *AccessControlRepositoryImpl) Create(ac *entities.AccessControl) (*entit
 
 // FindByID mengimplementasikan metode FindByID dari AccessControlRepository.
 // Ini mencari record access control berdasarkan ID dengan preload Role dan Permission.
-func (r *AccessControlRepositoryImpl) FindByID(id uint) (*entities.AccessControl, error) {
+func (r *AccessControlRepositoryImpl) FindByID(id uuid.UUID) (*entities.AccessControl, error) {
 	var ac entities.AccessControl
-	result := r.db.Preload("Role").Preload("Permission").First(&ac, id)
+	result := r.db.Preload("Role").Preload("Permission").Where("id = ?", id).First(&ac)
 	return &ac, result.Error
 }
 
 // FindByRoleAndResource mengimplementasikan metode FindByRoleAndResource dari AccessControlRepository.
 // Ini mencari access control berdasarkan role dan resource.
-func (r *AccessControlRepositoryImpl) FindByRoleAndResource(roleID uint, resourceType string, resourceID uint) (*entities.AccessControl, error) {
+func (r *AccessControlRepositoryImpl) FindByRoleAndResource(roleID uuid.UUID, resourceType string, resourceID uuid.UUID) (*entities.AccessControl, error) {
 	var ac entities.AccessControl
 	result := r.db.Where("role_id = ? AND resource_type = ? AND resource_id = ?", roleID, resourceType, resourceID).
 		Preload("Role").
@@ -55,8 +56,8 @@ func (r *AccessControlRepositoryImpl) FindAll() ([]entities.AccessControl, error
 
 // Delete mengimplementasikan metode Delete dari AccessControlRepository.
 // Ini menghapus record access control berdasarkan ID.
-func (r *AccessControlRepositoryImpl) Delete(id uint) error {
+func (r *AccessControlRepositoryImpl) Delete(id uuid.UUID) error {
 	// Menghapus record AccessControl berdasarkan ID
-	result := r.db.Delete(&entities.AccessControl{}, id)
+	result := r.db.Where("id = ?", id).Delete(&entities.AccessControl{})
 	return result.Error
 }

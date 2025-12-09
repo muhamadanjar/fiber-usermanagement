@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"log"
-	"strconv"
 
 	"fiber-usermanagement/internal/domain/entities"
 	"fiber-usermanagement/internal/usecase/interactors"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // AccessControlHandler menangani permintaan HTTP terkait entitas AccessControl.
@@ -43,13 +43,13 @@ func (h *AccessControlHandler) CreateAccessControl(c *fiber.Ctx) error {
 func (h *AccessControlHandler) GetAccessControlByID(c *fiber.Ctx) error {
 	idStr := c.Params("id")
 	// Konversi ID dari string parameter ke uint
-	id, err := strconv.ParseUint(idStr, 10, 64)
+	id, err := uuid.Parse(idStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ID access control tidak valid"})
 	}
 
 	// Panggil use case untuk mendapatkan access control
-	ac, err := h.acInteractor.GetAccessControlByID(uint(id))
+	ac, err := h.acInteractor.GetAccessControlByID(id)
 	if err != nil {
 		log.Printf("Kesalahan GetAccessControlByID di handler: %v", err)
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Access control tidak ditemukan"})
@@ -73,13 +73,13 @@ func (h *AccessControlHandler) GetAllAccessControls(c *fiber.Ctx) error {
 // DeleteAccessControl menangani penghapusan access control berdasarkan ID dari permintaan HTTP DELETE.
 func (h *AccessControlHandler) DeleteAccessControl(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	id, err := strconv.ParseUint(idStr, 10, 64)
+	id, err := uuid.Parse(idStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "ID access control tidak valid"})
 	}
 
 	// Panggil use case untuk menghapus access control
-	err = h.acInteractor.DeleteAccessControl(uint(id))
+	err = h.acInteractor.DeleteAccessControl(id)
 	if err != nil {
 		log.Printf("Kesalahan DeleteAccessControl di handler: %v", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})

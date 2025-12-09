@@ -8,7 +8,7 @@ import (
 )
 
 type Menu struct {
-	ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	ID        uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"id"`
 	Name      string         `gorm:"unique;not null" json:"name"`
 	Icon      string         `json:"icon"`
 	IsActive  bool           `gorm:"default:true" json:"is_active"`
