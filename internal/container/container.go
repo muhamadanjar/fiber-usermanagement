@@ -17,13 +17,25 @@ type BusinessContainer struct {
 	appContainer *config.AppContainer
 
 	// Repositories
-	userRepo repositories.UserRepository
+	userRepo          repositories.UserRepository
+	roleRepo          repositories.RoleRepository
+	permissionRepo    repositories.PermissionRepository
+	menuRepo          repositories.MenuRepository
+	accessControlRepo repositories.AccessControlRepository
 
 	// Interactors/Use Cases
-	userInteractor *interactors.UserInteractor
+	userInteractor          *interactors.UserInteractor
+	roleInteractor          *interactors.RoleInteractor
+	permissionInteractor    *interactors.PermissionInteractor
+	menuInteractor          *interactors.MenuInteractor
+	accessControlInteractor *interactors.AccessControlInteractor
 
 	// Handlers
-	userHandler *handlers.UserHandler
+	userHandler          *handlers.UserHandler
+	roleHandler          *handlers.RoleHandler
+	permissionHandler    *handlers.PermissionHandler
+	menuHandler          *handlers.MenuHandler
+	accessControlHandler *handlers.AccessControlHandler
 }
 
 // NewContainer creates a new business container with all dependencies
@@ -60,6 +72,10 @@ func NewContainer(appContainer *config.AppContainer) (*BusinessContainer, error)
 // initRepositories initializes all repository implementations
 func (c *BusinessContainer) initRepositories() error {
 	c.userRepo = persistence.NewUserRepository(c.appContainer.DB)
+	c.roleRepo = persistence.NewRoleRepository(c.appContainer.DB)
+	c.permissionRepo = persistence.NewPermissionRepository(c.appContainer.DB)
+	c.menuRepo = persistence.NewMenuRepository(c.appContainer.DB)
+	c.accessControlRepo = persistence.NewAccessControlRepository(c.appContainer.DB)
 
 	c.appContainer.Logger.Info("Repositories initialized")
 	return nil
@@ -68,6 +84,10 @@ func (c *BusinessContainer) initRepositories() error {
 // initInteractors initializes all use case interactors
 func (c *BusinessContainer) initInteractors() error {
 	c.userInteractor = interactors.NewUserInteractor(c.userRepo)
+	c.roleInteractor = interactors.NewRoleInteractor(c.roleRepo)
+	c.permissionInteractor = interactors.NewPermissionInteractor(c.permissionRepo)
+	c.menuInteractor = interactors.NewMenuInteractor(c.menuRepo)
+	c.accessControlInteractor = interactors.NewAccessControlInteractor(c.accessControlRepo)
 
 	c.appContainer.Logger.Info("Interactors initialized")
 	return nil
@@ -76,6 +96,10 @@ func (c *BusinessContainer) initInteractors() error {
 // initHandlers initializes all HTTP handlers
 func (c *BusinessContainer) initHandlers() error {
 	c.userHandler = handlers.NewUserHandler(c.userInteractor)
+	c.roleHandler = handlers.NewRoleHandler(c.roleInteractor)
+	c.permissionHandler = handlers.NewPermissionHandler(c.permissionInteractor)
+	c.menuHandler = handlers.NewMenuHandler(c.menuInteractor)
+	c.accessControlHandler = handlers.NewAccessControlHandler(c.accessControlInteractor)
 
 	c.appContainer.Logger.Info("Handlers initialized")
 	return nil
@@ -104,10 +128,12 @@ func (c *BusinessContainer) runMigrations() error {
 // SetupRoutes configures all application routes
 func (c *BusinessContainer) SetupRoutes() {
 	routeConfig := &routes.RouteConfig{
-		App: c.appContainer.App,
-		// Logger:      c.appContainer.Logger,
-		UserHandler: c.userHandler,
-		// Add other handlers as needed
+		App:                  c.appContainer.App,
+		UserHandler:          c.userHandler,
+		RoleHandler:          c.roleHandler,
+		PermissionHandler:    c.permissionHandler,
+		MenuHandler:          c.menuHandler,
+		AccessControlHandler: c.accessControlHandler,
 	}
 
 	routeConfig.Setup()
